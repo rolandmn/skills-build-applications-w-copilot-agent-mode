@@ -2,16 +2,48 @@
 
 import { useEffect } from "react";
 
-export default function Leaderboard() {
+import React, { useEffect, useState } from 'react';
+
+const Leaderboard = () => {
+  const [leaders, setLeaders] = useState([]);
+  const endpoint = `https://${process.env.REACT_APP_CODESPACE_NAME}-8000.app.github.dev/api/leaderboard/`;
+
   useEffect(() => {
-    fetch("/api/leaderboard")
-      .then((res) => res.json())
-      .then((data) => {
-        // Data verwerken indien nodig
+    console.log('Fetching Leaderboard from:', endpoint);
+    fetch(endpoint)
+      .then(res => res.json())
+      .then(data => {
+        const results = data.results || data;
+        setLeaders(results);
+        console.log('Fetched Leaderboard:', results);
       })
-      .catch((err) => {
-        // Foutafhandeling
-      });
-  }, []);
-  return <div>Leaderboard component</div>;
+      .catch(err => console.error('Error fetching leaderboard:', err));
+  }, [endpoint]);
+
+  return (
+    <div>
+      <h2 className="mb-4">Leaderboard</h2>
+      <div className="table-responsive">
+        <table className="table table-striped table-bordered">
+          <thead className="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leaders.map((leader, idx) => (
+              <tr key={leader.id || idx}>
+                <td>{idx + 1}</td>
+                <td>{leader.name || JSON.stringify(leader)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default Leaderboard;
 }
